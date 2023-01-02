@@ -1,0 +1,24 @@
+{:deps {com.taoensso/timbre {:mvn/version "5.2.1"}
+        io.github.obarbeau/clodiuno-debug {:git/sha "948d74e3d69d4e902130a44d779df68e38e03b85"
+                                           #_#_:local/root "../clodiuno-debug"
+                                           :exclusions [rxtx22/rxtx22]}
+        metasoarous/oz      {:mvn/version "1.6.0-alpha34"}
+        org.clojure/clojure {:mvn/version "1.11.1"}
+        org.rxtx/rxtx       {:mvn/version "2.2pre2"}
+        ;;prismatic/schema    {:mvn/version "1.4.0"}
+        ;;zprint/zprint       {:mvn/version "1.2.4"}
+        }
+ :paths ["src" "resources"]
+ :mvn/repos {"for_org.rxtx/rxtx" {:url "https://repo.opennms.org/maven2"}}
+ :aliases
+ {:build {:deps {io.github.obarbeau/build-clj
+                 {:git/sha "bb7d3f12381d84b9e230d8497d4d09b9fd6971ab"}}
+          :exec-args {:lib io.github.obarbeau/arduino-lab
+                      :main-ns arduino-lab.core
+                      :version "0.1.0-SNAPSHOT"}}
+  :usb-port {:jvm-opts ["-Dgnu.io.rxtx.SerialPorts=/dev/ttyACM0"
+                        ;; gnu.io.CommPortIdentifier
+                        ;; requires /usr/lib/jni/librxtxSerial-2.2pre1.so
+                        "-Djava.library.path=/usr/lib/jni"]}
+  :test {:extra-paths ["test"]
+         :extra-deps {lambdaisland/kaocha-cloverage {:mvn/version "1.0.75"}}}}}
