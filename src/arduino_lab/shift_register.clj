@@ -2,8 +2,7 @@
   "╭────────────────────────╮
    │ shift-register 74HC595 │
    ╰────────────────────────╯"
-  (:require [arduino-lab.core :as acc]
-            [clodiuno.core :as core
+  (:require [clodiuno.core :as core
              :refer [LOW HIGH OUTPUT]]
             [clodiuno-debug.utils :as utils]))
 
@@ -35,14 +34,14 @@
 (defn clear_register [board]
   (core/digital-write board _MR LOW)
   (core/digital-write board _OE LOW)
-  (acc/impulse board ST-CP)
+  (utils/impulse board ST-CP)
   (core/digital-write board _MR HIGH))
 
 (defn shift-register [board & {:keys [how-much wait]
                                :or {how-much 8 wait 100}}]
   (doseq [_ (range 0 how-much)]
-    (acc/impulse board SH-CP :wait wait)
-    (acc/impulse board ST-CP :wait wait)))
+    (utils/impulse board SH-CP :wait wait)
+    (utils/impulse board ST-CP :wait wait)))
 
 (defn sens1
   "One led only, shifting left"
@@ -83,10 +82,10 @@
   (utils/list-ports)
   (def board (utils/connect pin-mapping :debug false))
 
-  board
+  (clojure.pprint/pprint board)
 
   ;; just integrated led test
-  (acc/integrated-led-blink board)
+  (utils/integrated-led-blink board)
 
   ;; init
   (init-shift-register-register board)

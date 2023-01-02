@@ -1,8 +1,8 @@
 {:deps {com.taoensso/timbre {:mvn/version "5.2.1"}
-        io.github.obarbeau/clodiuno-debug {:git/sha "948d74e3d69d4e902130a44d779df68e38e03b85"
+        io.github.obarbeau/clodiuno-debug {:git/sha "8d2b3a4d2dc37b08f50b6c522a391b6cad43040f"
                                            #_#_:local/root "../clodiuno-debug"
                                            :exclusions [rxtx22/rxtx22]}
-        metasoarous/oz      {:mvn/version "1.6.0-alpha34"}
+        ;;metasoarous/oz      {:mvn/version "1.6.0-alpha34"}
         org.clojure/clojure {:mvn/version "1.11.1"}
         org.rxtx/rxtx       {:mvn/version "2.2pre2"}
         ;;prismatic/schema    {:mvn/version "1.4.0"}
