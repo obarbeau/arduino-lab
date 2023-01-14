@@ -2,8 +2,8 @@
   "╭────────────────────────╮
    │ shift-register 74HC595 │
    ╰────────────────────────╯"
-  (:require [clodiuno.core :as core
-             :refer [LOW HIGH OUTPUT]]
+  (:require [clodiuno.core :as ccore :refer [LOW HIGH OUTPUT]]
+            [clodiuno-debug.core :as core]
             [clodiuno-debug.utils :as utils]))
 
 (def pin-mapping [{:num 48 :color :yellow :name "data"}
@@ -23,33 +23,33 @@
 (defn init-shift-register-register
   "init pins for 74HC595"
   [board]
-  (core/pin-mode board DATA OUTPUT)
-  (core/pin-mode board SH-CP OUTPUT)
-  (core/pin-mode board ST-CP OUTPUT)
-  (core/pin-mode board _MR OUTPUT)
-  (core/pin-mode board _OE OUTPUT)
-  (core/digital-write board SH-CP LOW)
-  (core/digital-write board ST-CP LOW))
+  (ccore/pin-mode board DATA OUTPUT)
+  (ccore/pin-mode board SH-CP OUTPUT)
+  (ccore/pin-mode board ST-CP OUTPUT)
+  (ccore/pin-mode board _MR OUTPUT)
+  (ccore/pin-mode board _OE OUTPUT)
+  (ccore/digital-write board SH-CP LOW)
+  (ccore/digital-write board ST-CP LOW))
 
 (defn clear_register [board]
-  (core/digital-write board _MR LOW)
-  (core/digital-write board _OE LOW)
+  (ccore/digital-write board _MR LOW)
+  (ccore/digital-write board _OE LOW)
   (utils/impulse board ST-CP)
-  (core/digital-write board _MR HIGH))
+  (ccore/digital-write board _MR HIGH))
 
 (defn shift-register [board & {:keys [how-much wait]
                                :or {how-much 8 wait 100}}]
   (doseq [_ (range 0 how-much)]
-    (utils/impulse board SH-CP :wait wait)
-    (utils/impulse board ST-CP :wait wait)))
+    (core/impulse board SH-CP :wait wait)
+    (core/impulse board ST-CP :wait wait)))
 
 (defn sens1
   "One led only, shifting left"
   [board speed]
   (clear_register board)
-  (core/digital-write board DATA HIGH)
+  (ccore/digital-write board DATA HIGH)
   (shift-register board :wait speed :how-much 1)
-  (core/digital-write board DATA LOW)
+  (ccore/digital-write board DATA LOW)
   (shift-register board :wait speed :how-much 8))
 
 (defn sens2
@@ -57,35 +57,35 @@
   [board]
   (doseq [led (range 7 -1 -1)]
     (clear_register board)
-    (core/digital-write board _OE HIGH)
-    (core/digital-write board DATA HIGH)
+    (ccore/digital-write board _OE HIGH)
+    (ccore/digital-write board DATA HIGH)
     (shift-register board :wait 0 :how-much 1)
-    (core/digital-write board DATA LOW)
+    (ccore/digital-write board DATA LOW)
     (shift-register board :wait 0 :how-much led)
-    (core/digital-write board _OE LOW)
+    (ccore/digital-write board _OE LOW)
     (Thread/sleep 50)))
 
 (defn register-load [board i]
   (doseq [x (range 0 8)]
-    (core/digital-write board
-                        DATA
-                        (if (bit-test (bit-shift-left i x) 7) HIGH LOW))
+    (ccore/digital-write board
+                         DATA
+                         (if (bit-test (bit-shift-left i x) 7) HIGH LOW))
     (shift-register board :how-much 1)))
 
 (defn vagues [board]
   (doseq [speed [20 10 5 2]
           value [HIGH LOW]]
-    (core/digital-write board DATA value)
+    (ccore/digital-write board DATA value)
     (shift-register board :wait speed)))
 
 (comment
   (utils/list-ports)
-  (def board (utils/connect pin-mapping :debug false))
+  (def board (core/connect pin-mapping :debug false))
 
   (clojure.pprint/pprint board)
 
   ;; just integrated led test
-  (utils/integrated-led-blink board)
+  (core/integrated-led-blink board)
 
   ;; init
   (init-shift-register-register board)
@@ -109,10 +109,10 @@
     (sens1 board 50)
     (sens2 board))
 
-  (core/digital-write board DATA HIGH)
-  (core/digital-write board DATA LOW)
+  (ccore/digital-write board DATA HIGH)
+  (ccore/digital-write board DATA LOW)
   (shift-register board :how-much 8)
 
-  (utils/close-board board)
+  (core/close-board board)
   ;;
   )

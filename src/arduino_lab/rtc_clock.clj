@@ -2,7 +2,8 @@
   "╭───────────────────╮
    │ RTC clock DS 1302 │
    ╰───────────────────╯"
-  (:require [clodiuno.core :as core :refer [LOW HIGH INPUT OUTPUT]]
+  (:require [clodiuno.core :as ccore :refer [LOW HIGH INPUT OUTPUT]]
+            [clodiuno-debug.core :as core]
             [clodiuno-debug.utils :as utils]))
 
 (def CLK 38)
@@ -16,13 +17,13 @@
 (defn init-rtc-clock
   "Init the pins for DS1302"
   [board]
-  (core/pin-mode board CLK OUTPUT)
-  (core/digital-write board CLK LOW)
+  (ccore/pin-mode board CLK OUTPUT)
+  (ccore/digital-write board CLK LOW)
   ;; is both input & output, starts with output and write LOW
-  (core/pin-mode board IO OUTPUT)
-  (core/digital-write board IO LOW)
-  (core/pin-mode board CE OUTPUT)
-  (core/digital-write board CE HIGH))
+  (ccore/pin-mode board IO OUTPUT)
+  (ccore/digital-write board IO LOW)
+  (ccore/pin-mode board CE OUTPUT)
+  (ccore/digital-write board CE HIGH))
 
 ;; bit:       0  1  2  3  4  5    6  7
 ;; io:     R/_W A0 A1 A2 A3 A4 R/_C  1
@@ -47,21 +48,21 @@
 (defn shift-rtc-clock [board & {:keys [how-much wait]
                                 :or {how-much 8 wait 100}}]
   (doseq [_ (range 0 how-much)]
-    (utils/impulse board CLK :wait wait)))
+    (core/impulse board CLK :wait wait)))
 
 (defn write-rtc-clock [board command]
   (doseq [x (range 0 8)]
-    (core/pin-mode board IO OUTPUT)
-    (core/digital-write board
-                        IO
-                        (if (bit-test (bit-shift-left command x) 7) HIGH LOW))
+    (ccore/pin-mode board IO OUTPUT)
+    (ccore/digital-write board
+                         IO
+                         (if (bit-test (bit-shift-left command x) 7) HIGH LOW))
     (shift-rtc-clock board :how-much 1)))
 
 ;; TODO the reading must be done on the falling edge of the clock!
 (defn read-byte [board pin]
   (let [result (atom 2r0)]
     (doseq [x (range 0 8)]
-      (when (= HIGH (core/digital-read board pin))
+      (when (= HIGH (ccore/digital-read board pin))
         (println "high!")
         (swap! result #(bit-set % x)))
       (shift-rtc-clock board :how-much 1))
@@ -70,26 +71,30 @@
 ;; what = 0 = seconds
 (defn read-calendar [board what]
   (write-rtc-clock board (command-for-read-calendar what))
-  (core/pin-mode board IO INPUT)
+  (ccore/pin-mode board IO INPUT)
   (read-byte board IO))
 
 (comment
+
+  (import '(gnu.io CommPortIdentifier))
+  (CommPortIdentifier/getPortIdentifiers)
+
   (utils/list-ports)
   ;; connect board
-  (def board (utils/connect pin-mapping
-                            :debug true
-                            :output-name "rtc"))
+  (def board (core/connect :pin-mapping pin-mapping
+                           :debug true
+                           :output-name "rtc"))
   (clojure.pprint/pprint board)
   (clojure.pprint/pprint (:pin-mapping @board))
 
   (init-rtc-clock board)
 
-  (utils/impulse board CLK :wait 0)
+  (core/impulse board CLK :wait 0)
 
   (read-calendar board 0)
 
   (utils/export-signal board)
 
-  (utils/close-board board)
+  (core/close-board board)
   ;;
   )

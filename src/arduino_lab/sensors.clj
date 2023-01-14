@@ -2,24 +2,24 @@
   "╭─────────────────╮
    │ Arduino sensors │
    ╰─────────────────╯"
-  (:require [clodiuno.core :as core :refer [LOW HIGH INPUT OUTPUT PWM]]
+  (:require [clodiuno.core :as ccore :refer [LOW HIGH INPUT OUTPUT PWM]]
             [clodiuno-debug.utils :as utils]))
 
 (defn pwm-demo [board]
-  (core/pin-mode board 12 PWM)
+  (ccore/pin-mode board 12 PWM)
   (doseq [i (concat (range 0 255 4) (range 255 0 -4))]
-    (core/analog-write board 12 i)
+    (ccore/analog-write board 12 i)
     (Thread/sleep 10)))
 
 (defn tri-color
   "Tri-color LED module.
   Can be inserted directly on pins 11, 12, 13 and ground of the Arduino."
   [board]
-  (core/pin-mode board 11 PWM)
-  (core/pin-mode board 12 PWM)
-  (core/pin-mode board 13 PWM)
+  (ccore/pin-mode board 11 PWM)
+  (ccore/pin-mode board 12 PWM)
+  (ccore/pin-mode board 13 PWM)
   (doseq [i (concat (range 0 255 1) (range 255 -1 -1))]
-    (doall (map #(core/analog-write board % i) [11 12 13]))
+    (doall (map #(ccore/analog-write board % i) [11 12 13]))
     (Thread/sleep 1)))
 
 (defn seven-color-flash
@@ -30,24 +30,24 @@
   If you disconnect the LED the colors will reset and the animation
   will start over."
   [board]
-  (core/pin-mode board 12 OUTPUT)
-  (core/digital-write board 12 HIGH)
+  (ccore/pin-mode board 12 OUTPUT)
+  (ccore/digital-write board 12 HIGH)
   (println "stops flashing in 10 seconds")
   (Thread/sleep 10)
-  (core/digital-write board 12 LOW))
+  (ccore/digital-write board 12 LOW))
 
 (defn two-color-led
   "Two-Color LED (big one)"
   [board]
-  (core/pin-mode board 12 PWM)
-  (core/pin-mode board 13 PWM)
+  (ccore/pin-mode board 12 PWM)
+  (ccore/pin-mode board 13 PWM)
   (doseq [i (range 0 255 1)]
-    (core/analog-write board 12 i)
-    (core/analog-write board 13 (- 255 i))
+    (ccore/analog-write board 12 i)
+    (ccore/analog-write board 13 (- 255 i))
     (Thread/sleep 10))
   (doseq [i (range 0 255 1)]
-    (core/analog-write board 12 (- 255 i))
-    (core/analog-write board 13 i)
+    (ccore/analog-write board 12 (- 255 i))
+    (ccore/analog-write board 13 i)
     (Thread/sleep 10)))
 
 ; Temperature Sensor
@@ -62,22 +62,22 @@
   in particular the potentiometer until the limit of lighting
   of the integrated green led to be at the triggering threshold."
   [board]
-  (core/pin-mode board 13 OUTPUT)
-  (core/enable-pin board :analog 0)
+  (ccore/pin-mode board 13 OUTPUT)
+  (ccore/enable-pin board :analog 0)
   (while true
-    (let [a0 (core/analog-read board 0)]
+    (let [a0 (ccore/analog-read board 0)]
       (if (> a0 575)
-        (core/digital-write board 13 HIGH)
-        (core/digital-write board 12 LOW))))
-  (core/pin-mode board 13 OUTPUT)
-  (core/enable-pin board :digital 2)
-  (core/pin-mode board 2 INPUT)
+        (ccore/digital-write board 13 HIGH)
+        (ccore/digital-write board 12 LOW))))
+  (ccore/pin-mode board 13 OUTPUT)
+  (ccore/enable-pin board :digital 2)
+  (ccore/pin-mode board 2 INPUT)
   (while true
-    (let [a0 (core/digital-read board 2)]
+    (let [a0 (ccore/digital-read board 2)]
       (println a0)
       (if a0
-        (core/digital-write board 13 HIGH)
-        (core/digital-write board 12 LOW)))))
+        (ccore/digital-write board 13 HIGH)
+        (ccore/digital-write board 12 LOW)))))
 
 (defn raw-to-celcius
   "Using Steinhart-Hart equation and coefficients for thermistor"
@@ -127,12 +127,12 @@
 
    https://arduinomodules.info/ky-013-analog-temperature-sensor-module/"
   [board]
-  (core/enable-pin board :analog 0)
+  (ccore/enable-pin board :analog 0)
   (doseq [_i (range 0 100)]
-    (let [a0 (core/analog-read board 0)]
+    (let [a0 (ccore/analog-read board 0)]
       (println a0 (raw-to-celcius a0) (raw-to-celcius (- a0 456))))
     (Thread/sleep 100))
-  (core/disable-pin board :analog 0))
+  (ccore/disable-pin board :analog 0))
 
 (defn temp-data []
   (for [i (range 1 1023)]
@@ -194,11 +194,11 @@
 (comment
 
   ;; connect board
-  (def board (utils/connect [] :debug false))
+  (def board (core/connect [] :debug false))
   board
   ;; just integrated led test
-  (utils/integrated-led-blink board)
+  (core/integrated-led-blink board)
 
-  (utils/close-board board)
+  (core/close-board board)
   ;;
   )
