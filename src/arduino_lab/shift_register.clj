@@ -34,7 +34,7 @@
 (defn clear_register [board]
   (ccore/digital-write board _MR LOW)
   (ccore/digital-write board _OE LOW)
-  (utils/impulse board ST-CP)
+  (core/impulse board ST-CP)
   (ccore/digital-write board _MR HIGH))
 
 (defn shift-register [board & {:keys [how-much wait]

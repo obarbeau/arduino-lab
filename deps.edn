@@ -1,13 +1,7 @@
 {:deps {com.taoensso/timbre {:mvn/version "5.2.1"}
-        com.github.jpmonettas/flow-storm-dbg {:mvn/version "3.3.309"}
-        org.clojure/core.async {:mvn/version "1.2.603"}
         io.github.obarbeau/clodiuno-debug {#_#_:git/sha "8d2b3a4d2dc37b08f50b6c522a391b6cad43040f"
                                            :local/root "../clodiuno-debug"}
-        ;;metasoarous/oz      {:mvn/version "1.6.0-alpha34"}
-        org.clojure/clojure {:mvn/version "1.11.1"}
-        prismatic/schema    {:mvn/version "1.4.1"}
-        ;;zprint/zprint       {:mvn/version "1.2.4"}
-        }
+        org.clojure/clojure {:mvn/version "1.11.1"}}
  :paths ["src" "resources"]
  :aliases
  {:build {:deps {io.github.obarbeau/build-clj
