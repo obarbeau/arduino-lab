@@ -12,7 +12,7 @@
 
 (def pin-mapping [{:num CLK :color :white  :name "CLK"}
                   {:num IO  :color :yellow :name "IO"}
-                  {:num CE  :color :orange :name "CE/_RST"}])
+                  {:num CE  :color :magenta :name "CE/_RST"}])
 
 (defn init-rtc-clock
   "Init the pins for DS1302"
