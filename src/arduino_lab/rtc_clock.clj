@@ -3,7 +3,7 @@
    │ RTC clock DS 1302 │
    ╰───────────────────╯"
   (:require [clodiuno.core :as ccore :refer [LOW HIGH INPUT OUTPUT]]
-            [clodiuno-debug.core :as core]
+            [clodiuno-debug.core :as debug-core]
             [clodiuno-debug.utils :as utils]))
 
 (def CLK 38)
@@ -25,7 +25,7 @@
   (ccore/pin-mode board CE OUTPUT)
   (ccore/digital-write board CE HIGH))
 
-;; bit:       0  1  2  3  4  5    6  7
+;; bit:    0    1  2  3  4  5  6     7
 ;; io:     R/_W A0 A1 A2 A3 A4 R/_C  1
 (defn command-byte [read? address calendar?]
   (cond-> 2r10000000
@@ -48,7 +48,7 @@
 (defn shift-rtc-clock [board & {:keys [how-much wait]
                                 :or {how-much 8 wait 100}}]
   (doseq [_ (range 0 how-much)]
-    (core/impulse board CLK :wait wait)))
+    (debug-core/impulse board CLK :wait wait)))
 
 (defn write-rtc-clock [board command]
   (doseq [x (range 0 8)]
@@ -81,20 +81,20 @@
 
   (utils/list-ports)
   ;; connect board
-  (def board (core/connect :pin-mapping pin-mapping
-                           :debug true
-                           :output-name "rtc"))
+  (def board (debug-core/connect :pin-mapping pin-mapping
+                                 :debug true
+                                 :output-name "rtc"))
   (clojure.pprint/pprint board)
   (clojure.pprint/pprint (:pin-mapping @board))
 
   (init-rtc-clock board)
 
-  (core/impulse board CLK :wait 0)
+  (debug-core/impulse board CLK :wait 0)
 
   (read-calendar board 0)
 
   (utils/export-signal board)
 
-  (core/close-board board)
+  (debug-core/close-board board)
   ;;
   )

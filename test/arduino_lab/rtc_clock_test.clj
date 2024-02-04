@@ -1,6 +1,7 @@
 (ns arduino-lab.rtc-clock-test
-  (:require [clojure.test :refer [deftest is]]
-            [arduino-lab.rtc-clock :as sut]))
+  (:require [arduino-lab.rtc-clock :as sut]
+            [clodiuno-debug.core :as debug-core]
+            [clojure.test :refer [deftest is]]))
 
 (deftest command-byte-test
   (is (= 2r10000001
@@ -53,3 +54,12 @@
          (sut/command-for-write-ram 2)))
   (is (= 2r11010000
          (sut/command-for-write-ram 8))))
+
+(deftest shift-rtc-clock-test
+  (let [board (debug-core/connect :pin-mapping sut/pin-mapping
+                                  :debug true
+                                  :output-name "shift-rtc-clock-test")]
+    (sut/shift-rtc-clock board)
+    (sut/shift-rtc-clock board :how-much 3)
+    (is (= (slurp "test-resources/shift-rtc-clock-test.md")
+           (slurp "output/shift-rtc-clock-test.md")))))
